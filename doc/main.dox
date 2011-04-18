@@ -1,0 +1,172 @@
+/*! \mainpage segway RMP200 driver
+ 
+ \section Introduction
+ 
+  This driver is in charge to operate motion of a SegwayRMP200 and as well as monitoring
+
+  The main class is SegwayRMP200,
+
+  - The class has an FTDI driver object to ensure USB communication with the segway
+  - It also launches two threads for reading data and sending commands to the segway
+  - Uses a mutex variable, to ensure that only one thread is accessing ftdi object at a time.
+  .
+	
+  Segway parameters such as position and velocities paramaters are internal variables of the class, 
+  and updated every 10 ms approx, by the read thread.
+	
+  The read thread waits for a reception event coming from FTDI device. Once received it reads data stored into
+  receiving buffer of FTDI device. A reference of reception event of FTDI device is retrieved at constructor so 
+  as to wait upon it.
+	
+
+  Comanding the segway on the ohter hand is done at 50 Hz approx by the command thread, i.e one new command each
+  20 ms.Actually, segway must receive a command at least every 0.4 seconds (2.5 Hz) in order to keep it moving.
+  Otherwise it will automatically set motors to zero. 
+
+
+ \section Installation
+
+  \subsection Pre-Requisites
+
+  This driver requires of the following libraries and packages
+	 - <A href="http://www.cmake.org">cmake</A>, a cross-platform build system.
+	 - <A href="http://www.doxygen.org">doxygen</a> and 
+	   <A href="http://www.graphviz.org">graphviz</a> to generate the documentation.
+	 - <a href="http://www.libusb.org">libusb</a> for libftd2xx.
+	 - <a href="http://www.ftdichip.com">libftd2xx</a> for FTDI chip
+	 - <a href="http://wikiri.upc.es/index.php/Utilities_library">libiriutils</a> for threads and events from IRI repository.
+	 - <a href="http://wikiri.upc.es/index.php/Communications_library">communications library</a> for the FTDI driver.
+         .
+
+  Under linux all of these utilities are available in ready-to-use packages.
+
+  \subsection Compilation
+
+  
+  \par Install iriutils
+
+  For information on how to download, compile and install this library, please 
+  visit the following web page: http://wikiri.upc.es/index.php/Utilities_library
+
+  (FTDI,...)
+
+  \par Install this library
+  To build (placed in ./bin) the library just type in FTDI directory:
+
+  \code 
+  cmake .
+  make
+  \endcode
+
+  To create the documentation (placed in ./doc) type:
+  \code 
+  make doc
+  \endcode
+
+  To install the library into system folders
+  \code
+  sudo make install
+  \endcode
+
+  Just download this package, uncompress it, and execute cmake in build folder,
+  this step will generate the makefile and put all cmake files this folder.
+
+  \code 
+  cd build
+  cmake ..
+  \endcode
+  
+  To obtain the executables execute in build folder:
+  
+  \code
+  make
+  \endcode
+
+  To install the library SegwayRMP200 into system folders, in build folder:
+  \code
+  sudo make install
+  \endcode
+  
+  To generate the documentation, in build folder:
+  \code
+  make doc
+  \endcode
+
+  <em>Cmake</em> only needs to be executed once (make will automatically call
+  <em>cmake</em> if you modify one of the <em>CMakeList.txt</em> files).
+
+  The files in the <em>build</em> directory are genetated by <em>cmake</em>
+  and <em>make</em> and can be safely removed.
+  After doing so you will need to call cmake manually again.
+
+  \subsection Contents
+
+  This project is composed by the following source files
+	- SegwayRMP200Driver.cpp  (Segway driver)
+	- SegwayRMP200Driver.h	
+	- SegwayRMP200_main.cpp (example program)
+	.
+
+  \subsection Configuration
+
+  The default build mode is DEBUG. That is, objects and executables 
+  include debug information.
+
+  The RELEASE build mode optimizes for speed. To build in this mode
+  execute
+      - cmake .. -DCMAKE_BUILD_TYPE=RELEASE
+      .
+  The release mode will be kept until next time cmake is executed.
+
+  \section License
+
+  This package is licensed under a 
+  <a href="http://creativecommons.org/licenses/by/3.0/">
+    Creative Commons Attribution 3.0 Unported License</a>.
+
+  \section Disclaimer
+
+  <i>This package is distributed in the hope that it will be useful, but without any warranty. 
+  it is provided "as is" without warranty of any kind, either expressed or implied, including, 
+  but not limited to, the implied warranties of merchantability and fitness for a particular 
+  purpose. The entire risk as to the quality and performance of the program is with you. 
+  should the program prove defective, the GMR group does not assume the cost of any necessary 
+  servicing, repair  or correction.
+
+  In no event unless required by applicable law the author will be liable to you for damages, 
+  including any general, special, incidental or consequential damages arising out of the use or 
+  inability to use the program (including but not limited to loss of data or data being rendered 
+  inaccurate or losses sustained by you or third parties or a failure of the program to operate 
+  with any other programs), even if the author has been advised of the possibility of such damages.</i>
+
+  \author Ismael Haddad
+  \version 0.1
+  \date september 2009
+
+*/
+
+
+
+/*! \todo - afegir variables internes : velocity command (as received) i turn command (as received). Correspond al packet de dades 0x407, veure pag. 10 del Segway RMP Interface guide
+  - mutex per vT i vR ?. fer un mutex.enter() i mutex.exit() a la funcio setComands()
+  - mirar quins son els rangs de valors corrents per velocitat translacio i rotació i implementar algun mecanisme per no sobrepasar els rangs.
+  - Amb Processador UI ences (boto verd) i motors apagats, es pot llegir missatges. Son els heartbeats, missatges sense informacio que envia el UI processor als CPU dels motors
+  - Per llegir informacio util del segway, els motors han d'estar encesos
+  - Si s'utilitza amb un segway 200 (amb balanceig), anar amb compte amb la configuració.
+  De fet, es pot configurar el mode de traccio en el que s'ha de posar el segway (tractor, balance) aixi com bloquejar el balanceig (sendConfig() o config())
+  - sembla que la carga de les batteries dels UI variin lleugerament (augmenten?) quan s'utilitzen els motors. Potser hi ha algun mecanisme de carrega de les bateries amb alternador (verificar)
+  .
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
