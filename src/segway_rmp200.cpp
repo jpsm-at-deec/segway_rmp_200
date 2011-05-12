@@ -653,6 +653,33 @@ void CSegwayRMP200::reset_forward_integrator(void)
   this->access_command.exit();
 } 
 
+TSegwayRMP200Status CSegwayRMP200::get_status(void)
+{
+    TSegwayRMP200Status status;
+
+    status.right_wheel_velocity = right_wheel_velocity;
+    status.left_wheel_velocity  = left_wheel_velocity;
+    status.pitch_angle          = pitch_angle;
+    status.pitch_rate           = pitch_rate;
+    status.roll_angle           = roll_angle;
+    status.roll_rate            = roll_rate;
+    status.yaw_rate             = yaw_rate;
+    status.left_wheel_displ     = left_wheel_displ;
+    status.right_wheel_displ    = right_wheel_displ;
+    status.forward_displ        = forward_displ;
+    status.yaw_displ            = yaw_displ;
+    status.servo_frames         = servo_frames;
+    status.left_torque          = left_torque;
+    status.right_torque         = right_torque;
+    status.ui_battery           = ui_battery;
+    status.powerbase_battery    = powerbase_battery;
+    op_mode tractor             = tractor;
+    op_mode hardware_mode       = hardware_mode;
+    gain gain_schedule          = gain_schedule;
+
+    return status;
+}
+
 // status functions
 float CSegwayRMP200::get_pitch_angle(void)
 {

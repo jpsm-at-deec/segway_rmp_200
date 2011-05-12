@@ -61,6 +61,41 @@ typedef enum {light,tall,heavy} gain;
 typedef enum {tractor=1,balance=2,power_down=3} op_mode;
 
 /**
+ * \brief structure of segway status
+ *
+ * This datatype holds the values of internal information retrieved from the
+ * hardware platform. It tries to give a general overview of what's happening
+ * in the platform in a given moment.
+ */
+struct TSegwayRMP200Status 
+{
+    // Translational velocities
+    float right_wheel_velocity;
+    float left_wheel_velocity;
+    // Angular rates and angles
+    float pitch_angle;
+    float pitch_rate;
+    float roll_angle;
+    float roll_rate;
+    float yaw_rate;
+    // Displacements
+    float left_wheel_displ;
+    float right_wheel_displ;
+    float forward_displ;
+    float yaw_displ;
+    // Other configurations
+    float servo_frames;
+    float left_torque;
+    float right_torque;
+    float ui_battery;
+    float powerbase_battery;
+    op_mode tractor;
+    op_mode hardware_mode;
+    gain gain_schedule;
+};
+
+
+/**
  * \brief Segway RMP 200 driver
  *
  * This class implements the basic interface to communcate with an RMP200 segway platform,
@@ -1078,6 +1113,17 @@ class CSegwayRMP200
      */
     void connect(const std::string& desc_serial="");
     // status functions
+
+    /**
+     * \brief function to return the whole platform status
+     *
+     * This function returns the raw data status of all internal measures from
+     * the platform.
+     * 
+     * \return struct with all data from platform sensors
+     */
+    TSegwayRMP200Status get_status(void);
+
     /**
      * \brief function to return the pitch angle
      *
