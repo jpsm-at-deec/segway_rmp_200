@@ -657,25 +657,25 @@ TSegwayRMP200Status CSegwayRMP200::get_status(void)
 {
     TSegwayRMP200Status status;
 
-    status.right_wheel_velocity = right_wheel_velocity;
-    status.left_wheel_velocity  = left_wheel_velocity;
-    status.pitch_angle          = pitch_angle;
-    status.pitch_rate           = pitch_rate;
-    status.roll_angle           = roll_angle;
-    status.roll_rate            = roll_rate;
-    status.yaw_rate             = yaw_rate;
-    status.left_wheel_displ     = left_wheel_displ;
-    status.right_wheel_displ    = right_wheel_displ;
-    status.forward_displ        = forward_displ;
-    status.yaw_displ            = yaw_displ;
-    status.servo_frames         = servo_frames;
-    status.left_torque          = left_torque;
-    status.right_torque         = right_torque;
-    status.ui_battery           = ui_battery;
-    status.powerbase_battery    = powerbase_battery;
-    op_mode tractor             = tractor;
-    op_mode hardware_mode       = hardware_mode;
-    gain gain_schedule          = gain_schedule;
+    status.right_wheel_velocity = this-> right_wheel_velocity;
+    status.left_wheel_velocity  = this-> left_wheel_velocity;
+    status.pitch_angle          = this-> pitch_angle;
+    status.pitch_rate           = this-> pitch_rate;
+    status.roll_angle           = this-> roll_angle;
+    status.roll_rate            = this-> roll_rate;
+    status.yaw_rate             = this-> yaw_rate;
+    status.left_wheel_displ     = this-> left_wheel_displ;
+    status.right_wheel_displ    = this-> right_wheel_displ;
+    status.forward_displ        = this-> forward_displ;
+    status.yaw_displ            = this-> yaw_displ;
+    status.servo_frames         = this-> servo_frames;
+    status.left_torque          = this-> left_torque;
+    status.right_torque         = this-> right_torque;
+    status.ui_battery           = this-> ui_battery;
+    status.powerbase_battery    = this-> powerbase_battery;
+    op_mode operation_mode      = this-> mode;
+    op_mode hardware_mode       = this-> hardware_mode;
+    gain gain_schedule          = this-> gain_schedule;
 
     return status;
 }
