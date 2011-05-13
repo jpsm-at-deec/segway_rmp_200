@@ -89,7 +89,7 @@ struct TSegwayRMP200Status
     float right_torque;
     float ui_battery;
     float powerbase_battery;
-    op_mode tractor;
+    op_mode operation_mode;
     op_mode hardware_mode;
     gain gain_schedule;
 };
