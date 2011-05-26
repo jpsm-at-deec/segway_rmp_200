@@ -4,6 +4,7 @@
 #include "ftdimodule.h"
 #include "ftdiserver.h"
 #include "mutex.h"
+#include "math.h"
 #include <string>
 #include <vector>
 #include <queue>
@@ -183,6 +184,20 @@ struct TSegwayRMP200Status
 class CSegwayRMP200
 {
   public:
+    static const float COUNTSDEG_2_RAD           = M_PI/(7.8f*180.f);
+    static const float COUNTSDEG_2_RADSEC        = M_PI/(7.8f*180.f);
+    static const float COUNTS_2_METSEC           = 1.f/332.f;
+    static const float SECFRAMES_2_FRAMESEC      = 1.f/0.01f;
+    static const float COUNTSMETR_2_METR         = 1.f/33215.f;
+    static const float COUNTSREV_2_RADS          = 2.f*M_PI/112644.f;
+    static const float COUNTSNEWTMETR_2_NEWTMETR = 1.f/1094.f;
+    static const float COUNTS_2_VOLT             = 0.0125f;
+    static const float COUNTS_2_VOLT_OFFSET      = 1.4f;
+    static const float COUNTSVOLT_2_VOLT         = 1.f/4.f;
+    static const float COUNTSMPH_2_METRSEC       = 3.6f*147.f/1.609344f;
+    static const float COUNTS_2_RADSEC           = 1024.f;
+    static const float RADS_2_DEGS               = 180.f/M_PI;
+    
     /**
      * \brief segway PID
      *
@@ -447,7 +462,7 @@ class CSegwayRMP200
     /**
      * \brief pitch angle
      *
-     * This value has the pitch angle of the platform in degrees. This value is
+     * This value has the pitch angle of the platform in radians. This value is
      * periodically updated by the read thread and it is not possible to modify it 
      * otherwise. To get its value use the get_pitch_angle() function or the
      * overloaded operator <<.
@@ -456,7 +471,7 @@ class CSegwayRMP200
     /**
      * \brief pitch rate
      *
-     * This value has the pitch rate of the platform in degrees per second. This value is
+     * This value has the pitch rate of the platform in radians per second. This value is
      * periodically updated by the read thread and it is not possible to modify it 
      * otherwise. To get its value use the get_pitch_rate() function or the
      * overloaded operator <<.
@@ -465,7 +480,7 @@ class CSegwayRMP200
     /**
      * \brief roll angle
      *
-     * This value has the roll angle of the platform in degrees. This value is
+     * This value has the roll angle of the platform in radians. This value is
      * periodically updated by the read thread and it is not possible to modify it 
      * otherwise. To get its value use the get_roll_angle() function or the
      * overloaded operator <<.
@@ -474,7 +489,7 @@ class CSegwayRMP200
     /**
      * \brief roll rate
      *
-     * This value has the roll rate of the platform in degrees per second. This value is
+     * This value has the roll rate of the platform in radians per second. This value is
      * periodically updated by the read thread and it is not possible to modify it 
      * otherwise. To get its value use the get_roll_rate() function or the
      * overloaded operator <<.
@@ -483,7 +498,7 @@ class CSegwayRMP200
     /**
      * \brief yaw rate
      *
-     * This value has the yaw rate of the platform in degrees per second. This value is
+     * This value has the yaw rate of the platform in radians per second. This value is
      * periodically updated by the read thread and it is not possible to modify it 
      * otherwise. To get its value use the get_yaw_rate() function or the
      * overloaded operator <<.
@@ -528,7 +543,7 @@ class CSegwayRMP200
     /**
      * \brief yaw displacement
      *
-     * This value has the rotation of the whole platform in revolutions. This value is
+     * This value has the rotation of the whole platform in radians. This value is
      * periodically updated by the read thread and it is not possible to modify it 
      * otherwise. To get its value use the get_yaw_displacement() function 
      * or the overloaded operator <<.
@@ -634,7 +649,7 @@ class CSegwayRMP200
     /**
      * \brief rotation velocity
      *
-     * This value has the desired rotational velocity in revolutions per second. This 
+     * This value has the desired rotational velocity in radians per second. This 
      * values is updated each time the move() or stop() functions are called. Then
      * this value is sent periodically to the segway platform by the command thread.
      */
@@ -1127,45 +1142,45 @@ class CSegwayRMP200
     /**
      * \brief function to return the pitch angle
      *
-     * This function returns the current pitch angle in degrees. This function 
+     * This function returns the current pitch angle in radians. This function 
      * only returns the value of the internal attribute, but it does not access 
      * the hardware platform. This value is periodically updated by the feedback 
      * thread.
      *
-     * \return the current pitch angle in degrees.
+     * \return the current pitch angle in radians.
      */
     float get_pitch_angle(void);
     /**
      * \brief function to return the pitch rate
      *
-     * This function returns the current pitch rate in degrees per second. This 
+     * This function returns the current pitch rate in radians per second. This 
      * function only returns the value of the internal attribute, but it does not 
      * access the hardware platform. This value is periodically updated by the 
      * feedback thread.
      *
-     * \return the current pitch rate in degrees per second.
+     * \return the current pitch rate in radians per second.
      */
     float get_pitch_rate(void);
     /**
      * \brief function to return the roll angle
      *
-     * This function returns the current roll angle in degrees. This function 
+     * This function returns the current roll angle in radians. This function 
      * only returns the value of the internal attribute, but it does not access 
      * the hardware platform. This value is periodically updated by the feedback 
      * thread.
      *
-     * \return the current roll angle in degrees.
+     * \return the current roll angle in radians.
      */
     float get_roll_angle(void);
     /**
      * \brief function to return the roll rate
      *
-     * This function returns the current roll rate in degrees per second. This 
+     * This function returns the current roll rate in radians per second. This 
      * function only returns the value of the internal attribute, but it does not 
      * access the hardware platform. This value is periodically updated by the 
      * feedback thread.
      *
-     * \return the current roll rate in degrees per second.
+     * \return the current roll rate in radians per second.
      */
     float get_roll_rate(void);
     /**
@@ -1193,12 +1208,12 @@ class CSegwayRMP200
     /**
      * \brief function to return the yaw rate
      *
-     * This function returns the current yaw rate in degrees per second. 
+     * This function returns the current yaw rate in radians per second. 
      * This function only returns the value of the internal attribute, but it 
      * does not access the hardware platform. This value is periodically updated 
      * by the feedback thread.
      *
-     * \return the current yaw rate in revolutions per second.
+     * \return the current yaw rate in radians per second.
      *
      */
     float get_yaw_rate(void);
@@ -1250,12 +1265,12 @@ class CSegwayRMP200
     /**
      * \brief function to return the total yaw displacement
      *
-     * This function returns the current yaw displacement in revolutions. This 
+     * This function returns the current yaw displacement in radians. This 
      * function only returns the value of the internal attribute, but it does 
      * not access the hardware platform. This value is periodically updated by 
      * the feedback thread.
      *
-     * \return the current yaw displacement in revolutions per second.
+     * \return the current yaw displacement in radians per second.
      *
      */
     float get_yaw_displacement(void);
@@ -1385,13 +1400,13 @@ class CSegwayRMP200
      * state of the two blue buttons on the platform, this function throws an exception.
      * 
      * \param vT desired translational velocity in meters per second. This parameter
-     *           is limited to 12 kilometers per hour in both directions (both signs).
+     *           is limited to 3.3 meters per second in both directions (both signs).
      *           However, the given value is affected by the velocity scale factor set
      *           by the set_velocity_scale_factor() function, so the actual maximum 
      *           speed can be lower.
      *
-     * \param vR desired rotational velocity in revolutions per second. This parameter
-     *           is limited to 0.6 revolutions per second in both directions (both
+     * \param vR desired rotational velocity in radians per second. This parameter
+     *           is limited to 0.01 radians per second in both directions (both
      *           signs). However, the given value is affectd by the turnrate scale 
      *           factor set by the set_turnrate_scale_factor() function, so the actual
      *           maximum turnrate can be lower.
@@ -1430,13 +1445,13 @@ class CSegwayRMP200
      * is already formated as shown below:
      *
      * \verbatim
-     * Pitch angle: <pitch_angle> degrees
-     * Pitch rate: <pitch_rate> degrees/s
-     * Roll angle: <roll_angle> degrees
-     * Roll rate: <roll_rate> degrees/s
+     * Pitch angle: <pitch_angle> radians
+     * Pitch rate: <pitch_rate> radians/s
+     * Roll angle: <roll_angle> radians
+     * Roll rate: <roll_rate> radians/s
      * Left wheel velocity: <left_wheel_velocity> m/s
      * Right wheel velocity: <right_wheel_velocity> m/s
-     * Yaw rate: <yaw_rate> degrees/s
+     * Yaw rate: <yaw_rate> radians/s
      * Servo frames: <servo_frames> frames/s
      * Left wheel displacement: <left_wheel_displ> m
      * Right wheel displacement: <right_wheel_displ> m

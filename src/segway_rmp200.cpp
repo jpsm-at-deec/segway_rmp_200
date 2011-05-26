@@ -270,29 +270,29 @@ void CSegwayRMP200::parse_packet(segway_packet *packet)
     switch(command)
     {
       case 0x0400: break;
-      case 0x0401: this->pitch_angle=((float)((short int)(((int)packet->data[9]<<8)+(int)packet->data[10])))/7.8;
-                   this->pitch_rate=((float)((short int)(((int)packet->data[11]<<8)+(int)packet->data[12])))/7.8;
-                   this->roll_angle=((float)((short int)(((int)packet->data[13]<<8)+(int)packet->data[14])))/7.8;
-                   this->roll_rate=((float)((short int)(((int)packet->data[15]<<8)+(int)packet->data[16])))/7.8;
+      case 0x0401: this->pitch_angle=((float)((short int)(((int)packet->data[9]<<8)+(int)packet->data[10])))*COUNTSDEG_2_RAD;
+                   this->pitch_rate=((float)((short int)(((int)packet->data[11]<<8)+(int)packet->data[12])))*COUNTSDEG_2_RADSEC;
+                   this->roll_angle=((float)((short int)(((int)packet->data[13]<<8)+(int)packet->data[14])))*COUNTSDEG_2_RAD;
+                   this->roll_rate=((float)((short int)(((int)packet->data[15]<<8)+(int)packet->data[16])))*COUNTSDEG_2_RADSEC;
                    break;
-      case 0x0402: this->left_wheel_velocity=((float)((short int)(((int)packet->data[9]<<8)+(int)packet->data[10])))/332.0;
-                   this->right_wheel_velocity=((float)((short int)(((int)packet->data[11]<<8)+(int)packet->data[12])))/332.0;
-                   this->yaw_rate=((float)((short int)(((int)packet->data[13]<<8)+(int)packet->data[14])))/7.8;
-                   this->servo_frames=((float)((unsigned short int)(((int)packet->data[15]<<8)+(int)packet->data[16])))*0.01;
+      case 0x0402: this->left_wheel_velocity=((float)((short int)(((int)packet->data[9]<<8)+(int)packet->data[10])))*COUNTS_2_METSEC;
+                   this->right_wheel_velocity=((float)((short int)(((int)packet->data[11]<<8)+(int)packet->data[12])))*COUNTS_2_METSEC;
+                   this->yaw_rate=((float)((short int)(((int)packet->data[13]<<8)+(int)packet->data[14])))*COUNTSDEG_2_RADSEC;
+                   this->servo_frames=((float)((unsigned short int)(((int)packet->data[15]<<8)+(int)packet->data[16])))*SECFRAMES_2_FRAMESEC;
                    break; 
-      case 0x0403: this->left_wheel_displ=((float)((int)(((int)packet->data[11]<<24)+((int)packet->data[12]<<16)+((int)packet->data[9]<<8)+(int)packet->data[10])))/33215.0; 
-                   this->right_wheel_displ=((float)((int)(((int)packet->data[15]<<24)+((int)packet->data[16]<<16)+((int)packet->data[13]<<8)+(int)packet->data[14])))/33215.0;
+      case 0x0403: this->left_wheel_displ=((float)((int)(((int)packet->data[11]<<24)+((int)packet->data[12]<<16)+((int)packet->data[9]<<8)+(int)packet->data[10])))*COUNTSMETR_2_METR; 
+                   this->right_wheel_displ=((float)((int)(((int)packet->data[15]<<24)+((int)packet->data[16]<<16)+((int)packet->data[13]<<8)+(int)packet->data[14])))*COUNTSMETR_2_METR;
                    break;
-      case 0x0404: this->forward_displ=((float)((int)(((int)packet->data[11]<<24)+((int)packet->data[12]<<16)+((int)packet->data[9]<<8)+(int)packet->data[10])))/33215.0;;
-                   this->yaw_displ=((float)((int)(((int)packet->data[15]<<24)+((int)packet->data[16]<<16)+((int)packet->data[13]<<8)+(int)packet->data[14])))/112644.0;
+      case 0x0404: this->forward_displ=((float)((int)(((int)packet->data[11]<<24)+((int)packet->data[12]<<16)+((int)packet->data[9]<<8)+(int)packet->data[10])))*COUNTSMETR_2_METR;;
+                   this->yaw_displ=((float)((int)(((int)packet->data[15]<<24)+((int)packet->data[16]<<16)+((int)packet->data[13]<<8)+(int)packet->data[14])))*COUNTSREV_2_RADS;
                    break;
-      case 0x0405: this->left_torque=((float)((short int)(((int)packet->data[9]<<8)+(int)packet->data[10])))/1094.0;
-                   this->right_torque=((float)((short int)(((int)packet->data[11]<<8)+(int)packet->data[12])))/1094.0;
+      case 0x0405: this->left_torque=((float)((short int)(((int)packet->data[9]<<8)+(int)packet->data[10])))*COUNTSNEWTMETR_2_NEWTMETR;
+                   this->right_torque=((float)((short int)(((int)packet->data[11]<<8)+(int)packet->data[12])))*COUNTSNEWTMETR_2_NEWTMETR;
                    break;
       case 0x0406: this->mode=(op_mode)(packet->data[9]*256+packet->data[10]);
                    this->gain_schedule=(gain)(((int)packet->data[11]<<8)+(int)packet->data[12]);
-                   this->ui_battery=1.4+(float)(((int)packet->data[13]<<8)+(int)packet->data[14])*0.0125;
-                   this->powerbase_battery=(float)(((int)packet->data[15]<<8)+(int)packet->data[16])/4.0;
+                   this->ui_battery=COUNTS_2_VOLT_OFFSET+(float)(((int)packet->data[13]<<8)+(int)packet->data[14])*COUNTS_2_VOLT;
+                   this->powerbase_battery=(float)(((int)packet->data[15]<<8)+(int)packet->data[16])*COUNTSVOLT_2_VOLT;
                    if(!this->event_server->event_is_set(this->new_status_event))
                      this->event_server->set_event(this->new_status_event);
                    break;
@@ -870,8 +870,8 @@ std::cout << "move::hardware_mode=" << hardware_mode << " vs. mode=" << mode << 
   else
   {
     this->access_command.enter();
-    this->vT = (short int)(vT*3.6*147.0/1.609344);
-    this->vR = (short int)(vR*1024.0);
+    this->vT = (short int)(vT*COUNTSMPH_2_METRSEC);
+    this->vR = (short int)(vR*COUNTS_2_RADSEC);
     this->access_command.exit();
   }
 }
@@ -940,18 +940,18 @@ CSegwayRMP200::~CSegwayRMP200()
 std::ostream& operator<< (std::ostream& out, CSegwayRMP200& segway)
 {
   segway.access_status.enter();
-  out << "Pitch angle: " << segway.pitch_angle << " degrees" << std::endl;
-  out << "Pitch rate " << segway.pitch_rate << " degrees/s" << std::endl;
-  out << "Roll angle: " << segway.roll_angle << " degrees" << std::endl;
-  out << "Roll rate: " << segway.roll_rate << " degrees/s" << std::endl;
+  out << "Pitch angle: " << segway.pitch_angle*CSegwayRMP200::RADS_2_DEGS << " degrees" << std::endl;
+  out << "Pitch rate " << segway.pitch_rate*CSegwayRMP200::RADS_2_DEGS << " degrees/s" << std::endl;
+  out << "Roll angle: " << segway.roll_angle*CSegwayRMP200::RADS_2_DEGS << " degrees" << std::endl;
+  out << "Roll rate: " << segway.roll_rate*CSegwayRMP200::RADS_2_DEGS << " degrees/s" << std::endl;
   out << "Left wheel velocity: " << segway.left_wheel_velocity << " m/s" << std::endl;
   out << "Right wheel velocity: " << segway.right_wheel_velocity << " m/s" << std::endl;
-  out << "Yaw rate: " << segway.yaw_rate << " degrees/s" << std::endl;
+  out << "Yaw rate: " << segway.yaw_rate*CSegwayRMP200::RADS_2_DEGS << " degrees/s" << std::endl;
   out << "Servo frames: " << segway.servo_frames << " frames/s" << std::endl;
   out << "Left wheel displacement: " << segway.left_wheel_displ << " m" << std::endl;
   out << "Right wheel displacement: " << segway.right_wheel_displ << " m" << std::endl;
   out << "Forward displacement: " << segway.forward_displ << " m" << std::endl;
-  out << "Yaw displacement: " << segway.yaw_displ << " rev" << std::endl;
+  out << "Yaw displacement: " << segway.yaw_displ << " radians" << std::endl;
   out << "Left motor torque: " << segway.left_torque << " Nm" << std::endl;
   out << "Right motor torque: " << segway.right_torque << " Nm" << std::endl;
   if(segway.mode==tractor)
