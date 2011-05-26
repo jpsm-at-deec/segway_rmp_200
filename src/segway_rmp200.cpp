@@ -53,7 +53,7 @@ void CSegwayRMP200::init_attributes(void)
   this->roll_angle=0.0;
   this->roll_rate=0.0;
   this->yaw_rate=0.0;
-  this->servo_frames=0.0;
+  this->uptime=0.0;
   this->left_wheel_displ=0.0;
   this->right_wheel_displ=0.0;
   this->forward_displ=0.0;
@@ -278,7 +278,7 @@ void CSegwayRMP200::parse_packet(segway_packet *packet)
       case 0x0402: this->left_wheel_velocity=((float)((short int)(((int)packet->data[9]<<8)+(int)packet->data[10])))*COUNTS_2_METSEC;
                    this->right_wheel_velocity=((float)((short int)(((int)packet->data[11]<<8)+(int)packet->data[12])))*COUNTS_2_METSEC;
                    this->yaw_rate=((float)((short int)(((int)packet->data[13]<<8)+(int)packet->data[14])))*COUNTSDEG_2_RADSEC;
-                   this->servo_frames=((float)((unsigned short int)(((int)packet->data[15]<<8)+(int)packet->data[16])))*SECFRAMES_2_FRAMESEC;
+                   this->uptime=((float)((unsigned short int)(((int)packet->data[15]<<8)+(int)packet->data[16])))*FRAMES_2_SEC;
                    break; 
       case 0x0403: this->left_wheel_displ=((float)((int)(((int)packet->data[11]<<24)+((int)packet->data[12]<<16)+((int)packet->data[9]<<8)+(int)packet->data[10])))*COUNTSMETR_2_METR; 
                    this->right_wheel_displ=((float)((int)(((int)packet->data[15]<<24)+((int)packet->data[16]<<16)+((int)packet->data[13]<<8)+(int)packet->data[14])))*COUNTSMETR_2_METR;
@@ -668,7 +668,7 @@ TSegwayRMP200Status CSegwayRMP200::get_status(void)
     status.right_wheel_displ    = this->right_wheel_displ;
     status.forward_displ        = this->forward_displ;
     status.yaw_displ            = this->yaw_displ;
-    status.servo_frames         = this->servo_frames;
+    status.uptime               = this->uptime;
     status.left_torque          = this->left_torque;
     status.right_torque         = this->right_torque;
     status.ui_battery           = this->ui_battery;
@@ -716,9 +716,9 @@ float CSegwayRMP200::get_yaw_rate(void)
   return this->yaw_rate;
 }
 
-float CSegwayRMP200::get_servo_frames(void)
+float CSegwayRMP200::get_uptime(void)
 {
-  return this->servo_frames;
+  return this->uptime;
 }
 
 float CSegwayRMP200::get_left_wheel_displacement(void)
@@ -947,7 +947,7 @@ std::ostream& operator<< (std::ostream& out, CSegwayRMP200& segway)
   out << "Left wheel velocity: " << segway.left_wheel_velocity << " m/s" << std::endl;
   out << "Right wheel velocity: " << segway.right_wheel_velocity << " m/s" << std::endl;
   out << "Yaw rate: " << segway.yaw_rate*CSegwayRMP200::RADS_2_DEGS << " degrees/s" << std::endl;
-  out << "Servo frames: " << segway.servo_frames << " frames/s" << std::endl;
+  out << "Up time: " << segway.uptime << " s" << std::endl;
   out << "Left wheel displacement: " << segway.left_wheel_displ << " m" << std::endl;
   out << "Right wheel displacement: " << segway.right_wheel_displ << " m" << std::endl;
   out << "Forward displacement: " << segway.forward_displ << " m" << std::endl;

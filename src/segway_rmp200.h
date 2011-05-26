@@ -85,7 +85,7 @@ struct TSegwayRMP200Status
     float forward_displ;
     float yaw_displ;
     // Other configurations
-    float servo_frames;
+    float uptime;
     float left_torque;
     float right_torque;
     float ui_battery;
@@ -187,7 +187,7 @@ class CSegwayRMP200
     static const float COUNTSDEG_2_RAD           = M_PI/(7.8f*180.f);
     static const float COUNTSDEG_2_RADSEC        = M_PI/(7.8f*180.f);
     static const float COUNTS_2_METSEC           = 1.f/332.f;
-    static const float SECFRAMES_2_FRAMESEC      = 1.f/0.01f;
+    static const float FRAMES_2_SEC              = 0.01f;
     static const float COUNTSMETR_2_METR         = 1.f/33215.f;
     static const float COUNTSREV_2_RADS          = 2.f*M_PI/112644.f;
     static const float COUNTSNEWTMETR_2_NEWTMETR = 1.f/1094.f;
@@ -507,12 +507,12 @@ class CSegwayRMP200
     /**
      * \brief number of frames per second
      *
-     * This value has the number of servo frames in fames per second. This value is
-     * periodically updated by the read thread and it is not possible to modify it 
-     * otherwise. To get its value use the get_servo_frames() function or the
-     * overloaded operator <<.
+     * This value has the number of second since the platform power up. This 
+     * value is periodically updated by the read thread and it is not possible
+     * to modify it otherwise. To get its value use the get_uptime() 
+     * function or the overloaded operator <<.
      */
-    float servo_frames; 
+    float uptime; 
     /**
      * \brief left wheel displacement
      *
@@ -1218,16 +1218,16 @@ class CSegwayRMP200
      */
     float get_yaw_rate(void);
     /**
-     * \brief function to return the number of servo frames per second
+     * \brief function to return the number of seconds since power up
      *
-     * This function returns the current number of servo frames per second. This 
-     * function only returns the value of the internal attribute, but it does
-     * not access the hardware platform. This value is periodically updated by
-     * the feedback thread.
+     * This function returns the current number of seconds the platform has been
+     * running. This function only returns the value of the internal attribute, 
+     * but it does not access the hardware platform. This value is periodically 
+     * updated by the feedback thread.
      *
-     * \return the current number of servo frames per second.
+     * \return the current number of seconds since power up.
      */
-    float get_servo_frames(void);
+    float get_uptime(void);
     /**
      * \brief function to return the left wheel displacement
      *
@@ -1452,7 +1452,7 @@ class CSegwayRMP200
      * Left wheel velocity: <left_wheel_velocity> m/s
      * Right wheel velocity: <right_wheel_velocity> m/s
      * Yaw rate: <yaw_rate> radians/s
-     * Servo frames: <servo_frames> frames/s
+     * Up time: <uptime> s
      * Left wheel displacement: <left_wheel_displ> m
      * Right wheel displacement: <right_wheel_displ> m
      * Forward displacement: <forward_displ> m
