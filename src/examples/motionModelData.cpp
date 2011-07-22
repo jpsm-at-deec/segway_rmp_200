@@ -56,7 +56,6 @@ int main(int argc, char *argv[])
 {
 	//operational variables
 	CSegwayRMP200 *segway;
-	CFTDIServer *ftdi_server=CFTDIServer::instance();
 	string serial_number;
 	unsigned int ii=0;
 	unsigned int jj=0;

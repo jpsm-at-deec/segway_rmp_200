@@ -256,7 +256,6 @@ bool CSegwayRMP200::read_packet(segway_packet *packet,int *packet_len)
 void CSegwayRMP200::parse_packet(segway_packet *packet)
 {
   short int command;
-  int i=0;
 
   if(this->compute_checksum(packet)!=packet->data[17])
   {
@@ -314,6 +313,8 @@ void *CSegwayRMP200::start_read_thread(void *param)
   CSegwayRMP200 *segway = (CSegwayRMP200 *) param;
 
   segway->read_thread();
+
+  pthread_exit(NULL);
 }
 
 void CSegwayRMP200::read_thread(void)
@@ -343,8 +344,6 @@ void CSegwayRMP200::read_thread(void)
       end=true; 
     }
   }
-
-  pthread_exit(NULL);
 }
 
 void *CSegwayRMP200::start_command_thread(void *param)
@@ -352,11 +351,13 @@ void *CSegwayRMP200::start_command_thread(void *param)
   CSegwayRMP200 *segway = (CSegwayRMP200 *) param;
 
   segway->command_thread();
+
+  pthread_exit(NULL);
 }
  
 void CSegwayRMP200::command_thread(void)
 {
-  segway_packet packet={0xF0,0x55,0x00,0x00,0x00,0x00,0x04,0x13,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+  segway_packet packet={{0xF0,0x55,0x00,0x00,0x00,0x00,0x04,0x13,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}};
   std::vector<unsigned char> command;
   int exception_count=0;
   bool end=false;
@@ -413,8 +414,6 @@ void CSegwayRMP200::command_thread(void)
       end=true;
     }
   }
-
-  pthread_exit(NULL);
 }
 
 void *CSegwayRMP200::heartbeat_thread(void *param)
@@ -673,9 +672,6 @@ TSegwayRMP200Status CSegwayRMP200::get_status(void)
     status.right_torque         = this->right_torque;
     status.ui_battery           = this->ui_battery;
     status.powerbase_battery    = this->powerbase_battery;
-    op_mode operation_mode      = this->mode;
-    op_mode hardware_mode       = this->hardware_mode;
-    gain gain_schedule          = this->gain_schedule;
 
     return status;
 }
@@ -844,7 +840,7 @@ void CSegwayRMP200::connect(const std::string& desc_serial)
 
 void CSegwayRMP200::reset(void)
 {
-  segway_packet packet={0xF0,0x55,0x00,0x00,0x00,0x00,0x04,0x12,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+  segway_packet packet={{0xF0,0x55,0x00,0x00,0x00,0x00,0x04,0x12,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}};
 
   if(this->comm_dev==NULL)
   {

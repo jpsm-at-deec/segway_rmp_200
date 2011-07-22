@@ -49,7 +49,6 @@ int main(int argc, char *argv[])
 {
   CSegwayRMP200 *segway = NULL;
   std::list<std::string> events;
-  CFTDIServer *ftdi_server=CFTDIServer::instance();
   CEventServer *event_server=CEventServer::instance();
   std::string serial_number,cable_disconnected,power_off;
   bool connected=false;
