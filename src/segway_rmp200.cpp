@@ -10,37 +10,11 @@ const short int CSegwayRMP200::pid = 0xE729;
 
 CSegwayRMP200::CSegwayRMP200(const std::string& desc_serial)
 {
-  std::string serial_number=desc_serial;
-  std::vector<int> ftdi_devs;
-
-  this->event_server  = CEventServer::instance(); 
-  this->thread_server = CThreadServer::instance();
-
-  this->init_attributes();
-  this->init_ftdi();
-
-  if(desc_serial.compare("") == 0)
-  {
-    ftdi_devs = this->ftdi_server->get_ids_by_description(CSegwayRMP200::description);
-    
-    //check how many segway devices are connected
-    //launch exception if there are no segways or there is more than one
-    if(ftdi_devs.size() != 1)
-    {
-      if(ftdi_devs.size() == 0)
-        throw CSegwayRMP200Exception(_HERE_, "No segways available", this->id);
-      else
-      {
-        throw CSegwayRMP200Exception(_HERE_, "More than one segway available", this->id);
-      }
-    }
-    serial_number= this->ftdi_server->get_serial_number(ftdi_devs.at(0));
-  }
-  this->id = "segway_" + serial_number;
-  this->init_threads();
-  this->init_events();
-
-  this->connect(desc_serial);
+  init_attributes();
+  init_ftdi();
+  init_threads();
+  init_events();
+  connect(desc_serial);
 }
 
 void CSegwayRMP200::init_attributes(void)
@@ -79,6 +53,7 @@ void CSegwayRMP200::init_ftdi(void)
 
 void CSegwayRMP200::init_threads(void)
 {
+  this->thread_server = CThreadServer::instance();
 
   // create the feedback and command threads
   this->read_thread_id = this->id;
@@ -98,6 +73,8 @@ void CSegwayRMP200::init_threads(void)
 
 void CSegwayRMP200::init_events(void)
 {
+  this->event_server = CEventServer::instance(); 
+
   // create the finish events
   this->read_finish_event = this->id;
   this->read_finish_event += "_finish_read_thread";
@@ -124,6 +101,74 @@ void CSegwayRMP200::init_events(void)
   this->new_status_event += "_new_status";
   this->event_server->create_event(this->new_status_event);
 
+}
+
+void CSegwayRMP200::connect(const std::string & desc_serial)
+{
+  std::string serial_number = desc_serial;
+  std::list<std::string> events;
+
+  // rescan the bus to update the local information
+  this->ftdi_server->scan_bus();
+
+  //if no serial number is provided
+  if(desc_serial.compare("") == 0)
+  {
+    std::vector<int> ftdi_devs;
+    ftdi_devs = this->ftdi_server->get_ids_by_description(CSegwayRMP200::description);
+    
+    //check how many segway devices are connected
+    //launch exception if there are no segways or there is more than one
+    if(ftdi_devs.size() != 1)
+    {
+      if(ftdi_devs.size() == 0)
+        throw CSegwayRMP200Exception(_HERE_, "No segways available", this->id);
+      else
+      {
+        throw CSegwayRMP200Exception(_HERE_, "More than one segway available", this->id);
+      }
+    }
+    serial_number = this->ftdi_server->get_serial_number(ftdi_devs.at(0));
+  }
+
+  this->serial = serial_number;
+  this->id = "segway_" + serial_number;
+
+  TFTDIconfig ftdi_config;
+
+  if(this->comm_dev!=NULL)
+    this->close();
+
+  this->comm_dev=this->ftdi_server->get_device(serial_number);
+
+  ftdi_config.baud_rate     = 460800;
+  ftdi_config.word_length   = -1;
+  ftdi_config.stop_bits     = -1;
+  ftdi_config.parity        = -1;
+  ftdi_config.read_timeout  = 1000;
+  ftdi_config.write_timeout = 1000;
+  ftdi_config.latency_timer = 1;
+
+  this->comm_dev->config(&ftdi_config);
+  this->comm_rx_event=this->comm_dev->get_rx_event_id();
+  this->thread_server->start_thread(this->read_thread_id);
+  this->thread_server->start_thread(this->command_thread_id);
+  
+  // wait until the state has been updated for the first time
+  events.push_back(this->new_status_event);
+  events.push_back(this->heartbeat_event);
+  try
+  {
+    this->event_server->wait_all(events, 2000);
+    this->event_server->wait_all(events, 2000);
+  }
+  catch(CEventTimeoutException e)
+  {
+    this->close();
+    throw CSegwayRMP200Exception(_HERE_,"Segway connection not ready",this->id);
+  }
+
+  this->thread_server->start_thread(this->heartbeat_thread_id);
 }
 
 std::string CSegwayRMP200::get_id(void)
@@ -577,7 +622,7 @@ void CSegwayRMP200::unlock_balance(void)
 void CSegwayRMP200::set_operation_mode(op_mode mode)
 {
   std::vector<unsigned char> command;
-std::cout << "set_operation_mode::hardware_mode=" << hardware_mode << " vs. mode=" << mode << std::endl;
+
   if(this->hardware_mode==mode)
   {
     command.resize(4);
@@ -772,71 +817,9 @@ float CSegwayRMP200::get_powerbase_battery_voltage(void)
   return this->powerbase_battery;
 }
 
-void CSegwayRMP200::connect(const std::string& desc_serial)
-{
-  std::string serial_number = desc_serial;
-  std::list<std::string> events;
-
-  // rescan the bus to update the local information
-  this->ftdi_server->scan_bus();
-
-  //if no serial number is provided
-  if(desc_serial.compare("") == 0)
-  {
-    std::vector<int> ftdi_devs;
-    ftdi_devs = this->ftdi_server->get_ids_by_description(CSegwayRMP200::description);
-    
-    //check how many segway devices are connected
-    //launch exception if there are no segways or there is more than one
-    if(ftdi_devs.size() != 1)
-    {
-      if(ftdi_devs.size() == 0)
-        throw CSegwayRMP200Exception(_HERE_, "No segways available", this->id);
-      else
-      {
-        throw CSegwayRMP200Exception(_HERE_, "More than one segway available", this->id);
-      }
-    }
-    serial_number = this->ftdi_server->get_serial_number(ftdi_devs.at(0));
-  }
-
-  TFTDIconfig ftdi_config;
-
-  if(this->comm_dev!=NULL)
-    this->close();
-
-  this->comm_dev=this->ftdi_server->get_device(serial_number);
-
-  ftdi_config.baud_rate     = 460800;
-  ftdi_config.word_length   = -1;
-  ftdi_config.stop_bits     = -1;
-  ftdi_config.parity        = -1;
-  ftdi_config.read_timeout  = 1000;
-  ftdi_config.write_timeout = 1000;
-  ftdi_config.latency_timer = 1;
-
-  this->comm_dev->config(&ftdi_config);
-  this->comm_rx_event=this->comm_dev->get_rx_event_id();
-  this->thread_server->start_thread(this->read_thread_id);
-  this->thread_server->start_thread(this->command_thread_id);
-  
-
-  // wait until the state has been updated for the first time
-  events.push_back(this->new_status_event);
-  events.push_back(this->heartbeat_event);
-  try
-  {
-    this->event_server->wait_all(events, 2000);
-    this->event_server->wait_all(events, 2000);
-  }
-  catch(CEventTimeoutException e)
-  {
-    this->close();
-    throw CSegwayRMP200Exception(_HERE_,"Segway connection not ready",this->id);
-  }
-
-  this->thread_server->start_thread(this->heartbeat_thread_id);
-}
+/**
+ CONNECT!
+*/
 
 void CSegwayRMP200::reset(void)
 {
@@ -854,7 +837,7 @@ void CSegwayRMP200::reset(void)
   }
 
 }
-	
+
 void CSegwayRMP200::move(float vT,float vR)
 {
 std::cout << "move::hardware_mode=" << hardware_mode << " vs. mode=" << mode << std::endl;
@@ -904,12 +887,7 @@ void CSegwayRMP200::close()
     delete this->comm_dev;
     this->comm_dev=NULL;
   }
-}
 
-CSegwayRMP200::~CSegwayRMP200()
-{
-  this->close();
-  /* destroy the events */
   this->event_server->delete_event(this->read_finish_event);
   this->read_finish_event="";
   this->event_server->delete_event(this->command_finish_event);
@@ -924,13 +902,41 @@ CSegwayRMP200::~CSegwayRMP200()
   this->heartbeat_event="";
   this->event_server->delete_event(this->new_status_event);
   this->new_status_event="";
-  // destroy the threads
+  
+  // destroy threads
   this->thread_server->delete_thread(this->read_thread_id);
   this->read_thread_id="";
   this->thread_server->delete_thread(this->command_thread_id);
   this->command_thread_id="";
   this->thread_server->delete_thread(this->heartbeat_thread_id);
   this->heartbeat_thread_id="";
+}
+
+CSegwayRMP200::~CSegwayRMP200()
+{
+  this->close();
+  /* destroy the events */
+//   this->event_server->delete_event(this->read_finish_event);
+//   this->read_finish_event="";
+//   this->event_server->delete_event(this->command_finish_event);
+//   this->command_finish_event="";
+//   this->event_server->delete_event(this->cable_disconnected_event);
+//   this->cable_disconnected_event="";
+//   this->event_server->delete_event(this->power_off_event);
+//   this->power_off_event="";
+//   this->event_server->delete_event(this->no_heartbeat_event);
+//   this->no_heartbeat_event="";
+//   this->event_server->delete_event(this->heartbeat_event);
+//   this->heartbeat_event="";
+//   this->event_server->delete_event(this->new_status_event);
+//   this->new_status_event="";
+//   // destroy the threads
+//   this->thread_server->delete_thread(this->read_thread_id);
+//   this->read_thread_id="";
+//   this->thread_server->delete_thread(this->command_thread_id);
+//   this->command_thread_id="";
+//   this->thread_server->delete_thread(this->heartbeat_thread_id);
+//   this->heartbeat_thread_id="";
 }
 
 std::ostream& operator<< (std::ostream& out, CSegwayRMP200& segway)

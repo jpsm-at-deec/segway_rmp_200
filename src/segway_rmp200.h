@@ -230,6 +230,8 @@ class CSegwayRMP200
      *
      */
     std::string id;
+    
+    std::string serial;
     /**
      * \brief mutex for the status data
      *
@@ -1371,6 +1373,8 @@ class CSegwayRMP200
      *
      */
     float get_powerbase_battery_voltage(void);
+    
+    std::string get_serial(void) { return serial; };
     /**
      * \brief function to reset the segway platform
      *

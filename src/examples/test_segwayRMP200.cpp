@@ -43,8 +43,6 @@
  * nothing will happen.
  */
 
-std::string segway_name="segway"; 
-
 int main(int argc, char *argv[])
 {
   CSegwayRMP200 *segway = NULL;
@@ -93,7 +91,7 @@ int main(int argc, char *argv[])
     events.push_back(segway->get_new_status_event());   
 
     segway->move(0.1,0.0);
-    for(i=0;i<1000000;i++)
+    for(i=0;i<201;i++)
     {
       event_id=event_server->wait_first(events);
       if(event_id==3)
@@ -136,7 +134,7 @@ int main(int argc, char *argv[])
       }
     }
     segway->stop();
-    segway->close();
+//     segway->close();
     delete segway;
   }
   catch(CException &e)
