@@ -54,19 +54,22 @@ int main(int argc, char *argv[])
 
   try
   {
+    segway = new CSegwayRMP200();
+
     while(!connected)
     {
       try
       {
-        segway = new CSegwayRMP200();
+        segway->connect();
         connected = true;
       }
       catch(CException &e)
       {
-        if(segway != NULL)
-          delete segway;
-
-        segway = NULL;
+        segway->close();
+//         if(segway != NULL)
+//           delete segway;
+// 
+//         segway = NULL;
 
         std::cout << e.what() << std::endl;
         std::cout << "The segway platfrom is still not ready (is it power on?)" << std::endl << std::endl;
@@ -134,7 +137,7 @@ int main(int argc, char *argv[])
       }
     }
     segway->stop();
-//     segway->close();
+    segway->close();
     delete segway;
   }
   catch(CException &e)

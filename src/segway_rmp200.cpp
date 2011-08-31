@@ -14,7 +14,6 @@ CSegwayRMP200::CSegwayRMP200(const std::string& desc_serial)
   init_ftdi();
   init_threads();
   init_events();
-  connect(desc_serial);
 }
 
 void CSegwayRMP200::init_attributes(void)
@@ -868,13 +867,14 @@ void CSegwayRMP200::close()
   //kill threads
   if(this->comm_dev!=NULL)
   {
-    // finish the threads
+    // finish threads
     this->event_server->set_event(this->read_finish_event);
     this->event_server->set_event(this->command_finish_event);
     this->thread_server->end_thread(this->read_thread_id);
     this->thread_server->end_thread(this->command_thread_id);
     this->thread_server->kill_thread(this->heartbeat_thread_id);
-    /* reset the events if necessary */
+    
+    // reset the events if necessary
     this->event_server->reset_event(this->read_finish_event);
     this->event_server->reset_event(this->command_finish_event);
     if(this->event_server->event_is_set(this->no_heartbeat_event))
@@ -887,7 +887,13 @@ void CSegwayRMP200::close()
     delete this->comm_dev;
     this->comm_dev=NULL;
   }
+}
 
+CSegwayRMP200::~CSegwayRMP200()
+{
+  this->close();
+  
+  // destroy events
   this->event_server->delete_event(this->read_finish_event);
   this->read_finish_event="";
   this->event_server->delete_event(this->command_finish_event);
@@ -910,33 +916,6 @@ void CSegwayRMP200::close()
   this->command_thread_id="";
   this->thread_server->delete_thread(this->heartbeat_thread_id);
   this->heartbeat_thread_id="";
-}
-
-CSegwayRMP200::~CSegwayRMP200()
-{
-  this->close();
-  /* destroy the events */
-//   this->event_server->delete_event(this->read_finish_event);
-//   this->read_finish_event="";
-//   this->event_server->delete_event(this->command_finish_event);
-//   this->command_finish_event="";
-//   this->event_server->delete_event(this->cable_disconnected_event);
-//   this->cable_disconnected_event="";
-//   this->event_server->delete_event(this->power_off_event);
-//   this->power_off_event="";
-//   this->event_server->delete_event(this->no_heartbeat_event);
-//   this->no_heartbeat_event="";
-//   this->event_server->delete_event(this->heartbeat_event);
-//   this->heartbeat_event="";
-//   this->event_server->delete_event(this->new_status_event);
-//   this->new_status_event="";
-//   // destroy the threads
-//   this->thread_server->delete_thread(this->read_thread_id);
-//   this->read_thread_id="";
-//   this->thread_server->delete_thread(this->command_thread_id);
-//   this->command_thread_id="";
-//   this->thread_server->delete_thread(this->heartbeat_thread_id);
-//   this->heartbeat_thread_id="";
 }
 
 std::ostream& operator<< (std::ostream& out, CSegwayRMP200& segway)
