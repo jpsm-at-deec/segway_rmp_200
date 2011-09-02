@@ -833,13 +833,8 @@ class CSegwayRMP200
      * If no serial number is provided, the class tries to automatically connect to the 
      * platfrom. In this case is more or less than one platforms are connected to the
      * computer, the constructor throws an exception.
-     *
-     * \param desc_serial a null terminated string with the description or the serial
-     *                    number of the segway platform to associate to the driver.
-     *                    This string can be obtanied through the CFTDIServer or else
-     *                    hardcoded if known.
      */
-    CSegwayRMP200(const std::string& desc_serial="");
+    CSegwayRMP200(void);
     /**
      * \brief function to get the identifeir of the segway
      *
@@ -1373,8 +1368,17 @@ class CSegwayRMP200
      *
      */
     float get_powerbase_battery_voltage(void);
-    
-    std::string get_serial(void) { return serial; };
+    /**
+     * \brief function to get the platform's serial number
+     *
+     * This function returns the platform's serial number. This function only
+     * returns the value of the internal attribute, but it does not access the
+     * hardware platform. This value is initialized by the connect function.
+     *
+     * \return the serial number
+     *
+     */
+    std::string get_serial(void);
     /**
      * \brief function to reset the segway platform
      *
@@ -1479,7 +1483,7 @@ class CSegwayRMP200
      * all the internal threads and events.
      *
      */
-    ~CSegwayRMP200(); 
+    ~CSegwayRMP200(void);
 };
 
 #endif

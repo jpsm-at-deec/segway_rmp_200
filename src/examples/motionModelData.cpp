@@ -49,7 +49,6 @@
 
 using namespace std;
 
-string segway_name="segway"; 
 unsigned int iterationPeriod = 50; //msec
 
 int main(int argc, char *argv[])
@@ -145,7 +144,7 @@ int main(int argc, char *argv[])
 	
 	//execution
 	try{
-		segway=new CSegwayRMP200(segway_name);
+		segway=new CSegwayRMP200();
 		segway->connect();
 		usleep(10000);
 		segway->unlock_balance();

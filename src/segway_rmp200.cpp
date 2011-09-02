@@ -8,12 +8,10 @@
 const std::string CSegwayRMP200::description = "Robotic Mobile Platform";
 const short int CSegwayRMP200::pid = 0xE729;
 
-CSegwayRMP200::CSegwayRMP200(const std::string& desc_serial)
+CSegwayRMP200::CSegwayRMP200(void)
 {
   init_attributes();
   init_ftdi();
-  init_threads();
-  init_events();
 }
 
 void CSegwayRMP200::init_attributes(void)
@@ -38,6 +36,7 @@ void CSegwayRMP200::init_attributes(void)
   this->gain_schedule=(gain)-1;
   this->ui_battery=0.0;
   this->powerbase_battery=0.0;
+
   // command variables
   this->vT=0; 
   this->vR=0;
@@ -45,59 +44,59 @@ void CSegwayRMP200::init_attributes(void)
 
 void CSegwayRMP200::init_ftdi(void)
 {
-    this->comm_dev=NULL;
-    this->ftdi_server = CFTDIServer::instance();
-    this->ftdi_server->add_custom_PID(this->pid);
+  this->comm_dev=NULL;
+  this->ftdi_server = CFTDIServer::instance();
+  this->ftdi_server->add_custom_PID(this->pid);
 }
 
 void CSegwayRMP200::init_threads(void)
 {
   this->thread_server = CThreadServer::instance();
 
+  this->read_thread_id      = this->id + "_read_thread";
+  this->command_thread_id   = this->id + "_command_thread";
+  this->heartbeat_thread_id = this->id + "_heartbeat_thread";
+  
   // create the feedback and command threads
-  this->read_thread_id = this->id;
-  this->read_thread_id += "_read_thread";
   this->thread_server->create_thread(this->read_thread_id);
   this->thread_server->attach_thread(this->read_thread_id,this->start_read_thread,this);
-  this->command_thread_id = this->id;
-  this->command_thread_id += "_command_thread";
   this->thread_server->create_thread(this->command_thread_id);
   this->thread_server->attach_thread(this->command_thread_id,this->start_command_thread,this);
+
   //create the heartbeat thread
-  this->heartbeat_thread_id = this->id;
-  this->heartbeat_thread_id += "_heartbeat_thread";
   this->thread_server->create_thread(this->heartbeat_thread_id);
   this->thread_server->attach_thread(this->heartbeat_thread_id,this->heartbeat_thread,this);
+
+  //start feedback and command threads
+  this->thread_server->start_thread(this->read_thread_id);
+  this->thread_server->start_thread(this->command_thread_id);
 }
 
 void CSegwayRMP200::init_events(void)
 {
   this->event_server = CEventServer::instance(); 
 
+  this->read_finish_event        = this->id + "_finish_read_thread";
+  this->command_finish_event     = this->id + "_finish_command_thread";
+  this->cable_disconnected_event = this->id + "_cable_disconnected";
+  this->power_off_event          = this->id + "_power_off_event";
+  this->no_heartbeat_event       = this->id + "_no_heartbeat";
+  this->heartbeat_event          = this->id + "_heartbeat";
+  this->new_status_event         = this->id + "_new_status";
+  
   // create the finish events
-  this->read_finish_event = this->id;
-  this->read_finish_event += "_finish_read_thread";
   this->event_server->create_event(this->read_finish_event);
-  this->command_finish_event = this->id;
-  this->command_finish_event += "_finish_command_thread";
   this->event_server->create_event(this->command_finish_event);
+
   // create the error events
-  this->cable_disconnected_event = this->id;
-  this->cable_disconnected_event += "_cable_disconnected";
   this->event_server->create_event(this->cable_disconnected_event);
-  this->power_off_event = this->id;
-  this->power_off_event += "_power_off_event";
   this->event_server->create_event(this->power_off_event);
-  this->no_heartbeat_event = this->id;
-  this->no_heartbeat_event += "_no_heartbeat";
   this->event_server->create_event(this->no_heartbeat_event);
+
   // create the heartbeat event
-  this->heartbeat_event = this->id;
-  this->heartbeat_event += "_heartbeat";
   this->event_server->create_event(this->heartbeat_event);
+
   // create the new status event
-  this->new_status_event = this->id;
-  this->new_status_event += "_new_status";
   this->event_server->create_event(this->new_status_event);
 
 }
@@ -105,7 +104,6 @@ void CSegwayRMP200::init_events(void)
 void CSegwayRMP200::connect(const std::string & desc_serial)
 {
   std::string serial_number = desc_serial;
-  std::list<std::string> events;
 
   // rescan the bus to update the local information
   this->ftdi_server->scan_bus();
@@ -150,12 +148,16 @@ void CSegwayRMP200::connect(const std::string & desc_serial)
 
   this->comm_dev->config(&ftdi_config);
   this->comm_rx_event=this->comm_dev->get_rx_event_id();
-  this->thread_server->start_thread(this->read_thread_id);
-  this->thread_server->start_thread(this->command_thread_id);
-  
+
+  //init threds and events
+  init_events();
+  init_threads();
+ 
   // wait until the state has been updated for the first time
+  std::list<std::string> events;
   events.push_back(this->new_status_event);
   events.push_back(this->heartbeat_event);
+
   try
   {
     this->event_server->wait_all(events, 2000);
@@ -166,7 +168,6 @@ void CSegwayRMP200::connect(const std::string & desc_serial)
     this->close();
     throw CSegwayRMP200Exception(_HERE_,"Segway connection not ready",this->id);
   }
-
   this->thread_server->start_thread(this->heartbeat_thread_id);
 }
 
@@ -816,9 +817,10 @@ float CSegwayRMP200::get_powerbase_battery_voltage(void)
   return this->powerbase_battery;
 }
 
-/**
- CONNECT!
-*/
+std::string CSegwayRMP200::get_serial(void)
+{ 
+  return this->serial;
+}
 
 void CSegwayRMP200::reset(void)
 {
@@ -887,35 +889,41 @@ void CSegwayRMP200::close()
     delete this->comm_dev;
     this->comm_dev=NULL;
   }
+  
+  // destroy events
+  if(!this->read_finish_event.empty())
+  {
+    this->event_server->delete_event(this->read_finish_event);
+    this->read_finish_event="";
+    this->event_server->delete_event(this->command_finish_event);
+    this->command_finish_event="";
+    this->event_server->delete_event(this->cable_disconnected_event);
+    this->cable_disconnected_event="";
+    this->event_server->delete_event(this->power_off_event);
+    this->power_off_event="";
+    this->event_server->delete_event(this->no_heartbeat_event);
+    this->no_heartbeat_event="";
+    this->event_server->delete_event(this->heartbeat_event);
+    this->heartbeat_event="";
+    this->event_server->delete_event(this->new_status_event);
+    this->new_status_event="";
+  }
+  
+  // destroy threads
+  if(!this->read_thread_id.empty())
+  {
+    this->thread_server->delete_thread(this->read_thread_id);
+    this->read_thread_id="";
+    this->thread_server->delete_thread(this->command_thread_id);
+    this->command_thread_id="";
+    this->thread_server->delete_thread(this->heartbeat_thread_id);
+    this->heartbeat_thread_id="";
+  }
 }
 
 CSegwayRMP200::~CSegwayRMP200()
 {
   this->close();
-  
-  // destroy events
-  this->event_server->delete_event(this->read_finish_event);
-  this->read_finish_event="";
-  this->event_server->delete_event(this->command_finish_event);
-  this->command_finish_event="";
-  this->event_server->delete_event(this->cable_disconnected_event);
-  this->cable_disconnected_event="";
-  this->event_server->delete_event(this->power_off_event);
-  this->power_off_event="";
-  this->event_server->delete_event(this->no_heartbeat_event);
-  this->no_heartbeat_event="";
-  this->event_server->delete_event(this->heartbeat_event);
-  this->heartbeat_event="";
-  this->event_server->delete_event(this->new_status_event);
-  this->new_status_event="";
-  
-  // destroy threads
-  this->thread_server->delete_thread(this->read_thread_id);
-  this->read_thread_id="";
-  this->thread_server->delete_thread(this->command_thread_id);
-  this->command_thread_id="";
-  this->thread_server->delete_thread(this->heartbeat_thread_id);
-  this->heartbeat_thread_id="";
 }
 
 std::ostream& operator<< (std::ostream& out, CSegwayRMP200& segway)
