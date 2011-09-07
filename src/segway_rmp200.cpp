@@ -305,9 +305,10 @@ void CSegwayRMP200::parse_packet(segway_packet *packet)
   if(this->compute_checksum(packet)!=packet->data[17])
   {
     /* handle exceptions */
-    throw CSegwayRMP200Exception(_HERE_,"Invalid packet checksum, a transmission error ocurred",this->id);
+//     throw CSegwayRMP200Exception(_HERE_,"Invalid packet checksum, a transmission error ocurred",this->id);
+    std::cout << "Invalid packet checksum, a transmission error ocurred" << std::endl;
   }
-  if(packet->data[2]==0xaa)
+  else if(packet->data[2]==0xaa)
   {
     this->access_status.enter();
     command=(packet->data[4]*256+packet->data[5])/32;
@@ -841,7 +842,6 @@ void CSegwayRMP200::reset(void)
 
 void CSegwayRMP200::move(float vT,float vR)
 {
-std::cout << "move::hardware_mode=" << hardware_mode << " vs. mode=" << mode << std::endl;
   if(this->mode!=this->hardware_mode)
   {
     /* handle exceptions */
