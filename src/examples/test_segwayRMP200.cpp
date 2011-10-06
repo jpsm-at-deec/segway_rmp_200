@@ -93,8 +93,8 @@ int main(int argc, char *argv[])
     events.push_back(segway->get_no_heartbeat_event());    
     events.push_back(segway->get_new_status_event());   
 
-    segway->move(0.1,0.0);
-    for(i=0;i<201;i++)
+//    segway->move(0.1,0.0);
+    for(;;)
     {
       event_id=event_server->wait_first(events);
       if(event_id==3)
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
           {
             segway->connect();
             connected=true;
-            segway->move(0.1,0.0);
+//            segway->move(0.1,0.0);
           }
           catch(CException &e)
           {
