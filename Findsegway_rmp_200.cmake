@@ -2,7 +2,7 @@ FIND_PATH(segway_rmp_200_INCLUDE_DIR segway_rmp200.h segway_rmp200_exceptions.h 
 
 FIND_LIBRARY(segway_rmp_200_LIBRARY
     NAMES segway_rmp_200
-    PATHS /usr/lib /usr/local/lib /usr/local/lib/iridrivers) 
+    PATHS /usr/lib/iridrivers /usr/local/lib /usr/local/lib/iridrivers) 
 
 IF (segway_rmp_200_INCLUDE_DIR AND segway_rmp_200_LIBRARY)
    SET(segway_rmp_200_FOUND TRUE)
