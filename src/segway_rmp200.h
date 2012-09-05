@@ -195,7 +195,7 @@ class CSegwayRMP200
     static const float COUNTS_2_VOLT_OFFSET      = 1.4f;
     static const float COUNTSVOLT_2_VOLT         = 1.f/4.f;
     static const float COUNTSMPH_2_METRSEC       = 3.6f*147.f/1.609344f;
-    static const float COUNTS_2_RADSEC           = 1024.f;
+    static const float COUNTS_2_RADSEC           = 1024.f/M_PI;
     static const float RADS_2_DEGS               = 180.f/M_PI;
     
     /**
