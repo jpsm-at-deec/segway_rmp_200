@@ -430,6 +430,13 @@ void CSegwayRMP200::command_thread(void)
       packet.data[15]=command[2];
       packet.data[16]=command[3];
     }
+    else
+    {
+      packet.data[13]=0x00;
+      packet.data[14]=0x00;
+      packet.data[15]=0x00;
+      packet.data[16]=0x00;
+    }
     this->access_command.exit();
     packet.data[17]=this->compute_checksum(&packet);
     try{
