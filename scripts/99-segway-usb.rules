@@ -1,0 +1,1 @@
+SUBSYSTEM=="usb", ATTR{manufacturer}=="Segway", GROUP="dialout"
