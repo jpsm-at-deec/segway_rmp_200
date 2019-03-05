@@ -66,10 +66,10 @@ int main(int argc, char *argv[])
       catch(CException &e)
       {
         segway->close();
-//         if(segway != NULL)
-//           delete segway;
-// 
-//         segway = NULL;
+        // if(segway != NULL)
+        //   delete segway;
+        // 
+        // segway = NULL;
 
         std::cout << e.what() << std::endl;
         std::cout << "The segway platfrom is still not ready (is it power on?)" << std::endl << std::endl;
@@ -92,8 +92,9 @@ int main(int argc, char *argv[])
     events.push_back(segway->get_power_off_event());    
     events.push_back(segway->get_no_heartbeat_event());    
     events.push_back(segway->get_new_status_event());   
+    
+    //segway->move(0.1,0.0);
 
-//    segway->move(0.1,0.0);
     for(;;)
     {
       event_id=event_server->wait_first(events);
@@ -126,7 +127,7 @@ int main(int argc, char *argv[])
           {
             segway->connect();
             connected=true;
-//            segway->move(0.1,0.0);
+            //segway->move(0.1,0.0);
           }
           catch(CException &e)
           {
