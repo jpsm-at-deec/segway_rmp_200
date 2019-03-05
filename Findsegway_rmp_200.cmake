@@ -2,7 +2,7 @@ FIND_PATH(segway_rmp_200_INCLUDE_DIR segway_rmp200.h segway_rmp200_exceptions.h 
 
 FIND_LIBRARY(segway_rmp_200_LIBRARY
     NAMES segway_rmp_200
-    PATHS /usr/lib/iri/segway_rmp_200 /usr/local/lib /usr/local/lib/iri/segway_rmp_200)
+    PATHS /usr/lib /usr/lib/iri/segway_rmp_200 /usr/local/lib /usr/local/lib/iri/segway_rmp_200)
     
 SET(segway_rmp_200_INCLUDE_DIRS ${segway_rmp_200_INCLUDE_DIR})
 SET(segway_rmp_200_LIBRARIES    ${segway_rmp_200_LIBRARY})
