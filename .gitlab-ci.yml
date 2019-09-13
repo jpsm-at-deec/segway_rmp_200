@@ -1,0 +1,38 @@
+  image: docker.io/labrobotica/labrobotica
+
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+
+  stages:
+    - build
+    - test
+    - deploy
+
+  build-package:
+    stage: build
+    script:
+      - apt update
+      - apt -y install iri-iriutils-dev iri-comm-dev
+      - mkdir -pv build
+      - cd build
+      - cmake -DCMAKE_BUILD_TYPE=RELEASE -DCPACK_PACKAGE_VERSION=$CI_COMMIT_TAG ..
+      - ls ..
+      - make firmware -j $(nproc)
+      - make package -j $(nproc)
+      
+    artifacts:
+      paths:
+        - build/*.deb
+      expire_in: 2 weeks
+    only:
+      - tags
+      
+  update_repo:
+    stage: deploy
+    script:
+      - cd build
+      - "scp -i /root/.ssh/iriLabKeyNopwd -r *segway-rmp-200*.deb irilabo@147.83.76.226:packages/"
+      - "ssh irilabo@147.83.76.226 -i /root/.ssh/iriLabKeyNopwd -tt /home/irilabo/repo_scripts/update_repo.sh segway-rmp-200"
+    only:
+      - tags
+      
