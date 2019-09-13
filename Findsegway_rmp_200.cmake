@@ -1,23 +1,26 @@
-FIND_PATH(segway_rmp_200_INCLUDE_DIR segway_rmp200.h segway_rmp200_exceptions.h /usr/include/iri/segway_rmp_200 /usr/local/include/iri/segway_rmp_200)
+SET(name segway_rmp_200)
+#edit the following line to add the librarie's header files
+SET(header_files segway_rmp200.h segway_rmp200_exceptions.h)
 
-FIND_LIBRARY(segway_rmp_200_LIBRARY
-    NAMES segway_rmp_200
-    PATHS /usr/lib /usr/lib/iri/segway_rmp_200 /usr/local/lib /usr/local/lib/iri/segway_rmp_200)
-    
-SET(segway_rmp_200_INCLUDE_DIRS ${segway_rmp_200_INCLUDE_DIR})
-SET(segway_rmp_200_LIBRARIES    ${segway_rmp_200_LIBRARY})
+FIND_PATH(${name}_INCLUDE_DIRS ${header_files} /usr/include/iri/${name} /usr/local/include/iri/${name})
 
-IF (segway_rmp_200_INCLUDE_DIR AND segway_rmp_200_LIBRARY)
-   SET(segway_rmp_200_FOUND TRUE)
-ENDIF (segway_rmp_200_INCLUDE_DIR AND segway_rmp_200_LIBRARY)
+FIND_LIBRARY(${name}_LIBRARIES
+    NAMES ${name}
+    PATHS /usr/lib /usr/lib/iri/${name} /usr/local/lib /usr/local/lib/iri/${name})
 
-IF (segway_rmp_200_FOUND)
-   IF (NOT segway_rmp_200_FIND_QUIETLY)
-      MESSAGE(STATUS "Found Segway RMP200 driver: ${segway_rmp_200_LIBRARY}")
-   ENDIF (NOT segway_rmp_200_FIND_QUIETLY)
-ELSE (segway_rmp_200_FOUND)
-   IF (segway_rmp_200_FIND_REQUIRED)
-      MESSAGE(FATAL_ERROR "Could not find segway RMP200 driver")
-   ENDIF (segway_rmp_200_FIND_REQUIRED)
-ENDIF (segway_rmp_200_FOUND)
+SET(${name}_INCLUDE_DIR ${${name}_INCLUDE_DIRS})
+SET(${name}_LIBRARY     ${${name}_LIBRARIES})
 
+IF (${name}_INCLUDE_DIRS AND ${name}_LIBRARIES)
+   SET(${name}_FOUND TRUE)
+ENDIF (${name}_INCLUDE_DIRS AND ${name}_LIBRARIES)
+
+IF (${name}_FOUND)
+   IF (NOT ${name}_FIND_QUIETLY)
+      MESSAGE(STATUS "Found ${name}: ${${name}_LIBRARIES}")
+   ENDIF (NOT ${name}_FIND_QUIETLY)
+ELSE (${name}_FOUND)
+   IF (${name}_FIND_REQUIRED)
+      MESSAGE(FATAL_ERROR "Could not find ${name}")
+   ENDIF (${name}_FIND_REQUIRED)
+ENDIF (${name}_FOUND)        
