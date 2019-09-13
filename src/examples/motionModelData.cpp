@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 	string fileName = "/home/andreu/Desktop/dataFile.txt";
 	timeval tvTimeStamp;
 	double timeStamp;
-	streamsize nn;
+	//streamsize nn;
 	
 	//user variables 
 	float duration; //duration of all the experiment
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 	
 			//logging data
 			//cout << (*segway) << endl;
-			nn=dataFile.precision(15);
+			//nn=dataFile.precision(15);
 			dataFile << timeStamp << " ";
 			dataFile.precision(6);
 			dataFile 	<< vt << "\t" << vr << "\t"
