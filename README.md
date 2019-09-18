@@ -1,30 +1,81 @@
-segway rmp 200 library                         {#mainpage}
+segway_rmp_200 library                         {#mainpage}
 ============
 
 ## Description
 
-This driver offers a c++ wrapper to control a Segway RMP 200 platform.
+This driver is in charge to operate motion of a SegwayRMP200 and as well as monitoring.
+
+  The main class is SegwayRMP200,
+
+  - The class has an FTDI driver object to ensure USB communication with the segway.
+  - It also launches two threads for reading data and sending commands to the segway.
+  - Uses a mutex variable, to ensure that only one thread is accessing ftdi object at a time.
+	
+  Segway parameters such as position and velocities paramaters are internal variables of the class, 
+  and updated every 10ms approx, by the read thread.
+	
+  The read thread waits for a reception event coming from FTDI device. Once received it reads data stored into
+  receiving buffer of FTDI device. A reference of reception event of FTDI device is retrieved at constructor so 
+  as to wait upon it.
+
+  Comanding the segway on the ohter hand is done at 50 Hz approx by the command thread, i.e one new command each
+  20 ms.Actually, segway must receive a command at least every 0.4 seconds (2.5 Hz) in order to keep it moving.
+  Otherwise it will automatically set motors to zero. 
+
+
+## Installation
+
+* Add the labrobotica repository if it is not already added:
+
+``` sudo sh -c 'echo "deb [arch=amd64] http://147.83.76.226/~irilabo/packages xenial main" > /etc/apt/sources.list.d/labrobotica_repo.list' ```
+
+``` wget -O - http://147.83.76.226/~irilabo/labrobotica_repo.gpg.key | sudo apt-key add - ```
+
+* Install the package:
+
+``` sudo apt update && sudo apt install iri-segway-rmp-200-dev ```
+
+## Scripts
+
+A script is provided to add the Segway manufacturer devices to the dialout group. 
+
+See [scripts/.md](scripts)
+
+## Disclaimer  
+
+Copyright (C) 2009-2018 Institut de Robòtica i Informàtica Industrial, CSIC-UPC.
+Mantainer IRI labrobotics (labrobotica@iri.upc.edu)
+
+This package is distributed in the hope that it will be useful, but without any warranty. It is provided "as is" without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose. The entire risk as to the quality and performance of the program is with you. should the program prove defective, the GMR group does not assume the cost of any necessary servicing, repair  or correction.
+
+In no event unless required by applicable law the author will be liable to you for damages, including any general, special, incidental or consequential damages arising out of the use or inability to use the program (including but not limited to loss of data or data being rendered inaccurate or losses sustained by you or third parties or a failure of the program to operate with any other programs), even if the author has been advised of the possibility of such damages.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+## For developers
+
+<details><summary>click here</summary>
+<p>
 
 ## Dependencies
 
 This package requires of the following system libraries and packages
 
- * [cmake](https://www.cmake.org "CMake's Homepage"), a cross-platform build system.
- * [doxygen](http://www.doxygen.org "Doxygen's Homepage") and [graphviz](http://www.graphviz.org "Graphviz's Homepage") to generate the documentation.
- * stdc++.
+* [cmake](https://www.cmake.org "CMake's Homepage"), a cross-platform build system.
+* [doxygen](http://www.doxygen.org "Doxygen's Homepage") and [graphviz](http://www.graphviz.org "Graphviz's Homepage") to generate the documentation.
+* stdc++ and pthread libraries.
 
 Under linux all of these utilities are available in ready-to-use packages.
 
-Under MacOS most of the packages are available via [fink](http://www.finkproject.org/ "Fink's Homepage")
-
 This package also requires of the following IRI libraries:
 
- * [iriutils](https://gitlab.iri.upc.edu/labrobotica/algorithms/iriutils "iriutils gitlab page"), a set of basic tools.
- * [comm](https://gitlab.iri.upc.edu/labrobotica/drivers/comm "comm gitlab page"), a set of drivers for standard communication devices.
+* [iriutils](https://gitlab.iri.upc.edu/labrobotica/algorithms/iriutils "iriutils gitlab page"), a set of basic tools.
+* [comm](https://gitlab.iri.upc.edu/labrobotica/drivers/comm "comm gitlab page"), a set of drivers for standard communication devices.
 
-## Compilation and installation
+## Compilation and installation from source
 
-Download this repository and create a build folder inside:
+Clone this repository and create a build folder inside:
 
 ``` mkdir build ```
 
@@ -39,7 +90,7 @@ The RELEASE build mode optimizes for speed. To build in this mode execute instea
 
 The release mode will be kept until next time cmake is executed.
 
-``` make ``` 
+``` make -j $(nproc)``` 
 
 In case no errors are reported, the generated libraries (if any) will be located at the
 _lib_ folder and the executables (if any) will be located at the _bin_ folder.
@@ -49,8 +100,8 @@ To do that, execute
 
 ``` make install ```
 
-as root and the shared libraries will be copied to */usr/local/lib/iridrivers* directory
-and the header files will be copied to */usr/local/include/iridrivers* dierctory. At
+as root and the shared libraries will be copied to */usr/local/lib/iri/segway_rmp_200* directory
+and the header files will be copied to */usr/local/include/iri/segway_rmp_200* directory. At
 this point, the library may be used by any user.
 
 To remove the library from the system, exceute
@@ -65,37 +116,21 @@ To generate the documentation execute the following command:
 
 ## How to use it
 
-To use this library in an other library or application, in the CMakeLists.txt file, first it is necessary to locate if the library has been installed or not using the following command
+To use this library in another library or application, in the CMakeLists.txt file, first it is necessary to locate if the library has been installed or not using the following command
 
-``` FIND_PACKAGE(<library name>) ```
+``` FIND_PACKAGE(segway_rmp_200) ```
 
 In the case that the package is present, it is necessary to add the header files directory to the include directory path by using
 
-``` INCLUDE_DIRECTORIES(${<librray name>_INCLUDE_DIR}) ```
+``` INCLUDE_DIRECTORIES(${segway_rmp_200_INCLUDE_DIR}) ```
 
 and it is also necessary to link with the desired libraries by using the following command
 
-``` TARGET_LINK_LIBRARIES(<executable name> ${<library name>_LIBRARY}) ```
+``` TARGET_LINK_LIBRARIES(<executable name> ${segway_rmp_200_LIBRARY}) ```
 
-## Disclaimer  
+## Examples
 
-Copyright (C) 2009-2010 Institut de Robòtica i Informàtica Industrial, CSIC-UPC.
-Author shernand (shernand@iri.upc.edu)
-All rights reserved.
+There are several examples that show how to use it.
 
-This file is part of segway_rmp_200 driver library
-segway_rmp_200 driver library is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>
-
-
-
+</p>
+</details>
