@@ -38,8 +38,8 @@ This driver is in charge to operate motion of a SegwayRMP200 and as well as moni
 ## Scripts
 
 A script is provided to add the Segway manufacturer devices to the dialout group. 
+See [comm/scripts/add_manufacturer to_group_udev.md](https://gitlab.iri.upc.edu/labrobotica/drivers/comm/blob/install_path/scripts/add_manufacturer_to_group_udev.sh)
 
-See [scripts/.md](scripts)
 
 ## Disclaimer  
 
