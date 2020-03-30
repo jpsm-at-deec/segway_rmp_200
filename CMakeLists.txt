@@ -8,6 +8,7 @@ endif(COMMAND cmake_policy)
 
 # The project name and the type of project
 PROJECT(segway_rmp_200)
+SET(PACKAGE_NAME segway-rmp-200)
 
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
@@ -71,22 +72,25 @@ ELSE(UNIX)
   )
 ENDIF(UNIX)
 
-
 IF (UNIX)
-  SET(CPACK_PACKAGE_FILE_NAME "iri-${PROJECT_NAME}-dev-${CPACK_PACKAGE_VERSION}${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
-  SET(CPACK_PACKAGE_NAME "iri-${PROJECT_NAME}-dev")
-  SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Part of IRI-laboratory libraries. More information at http://wikiri.upc.es/index.php/Robotics_Lab")
-  SET(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-  SET(CPACK_GENERATOR "DEB")
-  SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "galenya - labrobotica@iri.upc.edu")
-  SET(CPACK_SET_DESTDIR "ON")  # Necessary because of the absolute install paths
-  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "iri-iriutils-dev (>= 1.0~${DISTRIB}), iri-comm-dev (>= 1.0~${DISTRIB})")
+    SET(CPACK_PACKAGE_FILE_NAME "iri-${PACKAGE_NAME}-dev-${CPACK_PACKAGE_VERSION}-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+    SET(CPACK_PACKAGE_NAME "iri-${PACKAGE_NAME}-dev")
+    SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Part of IRI-laboratory libraries. More information at https://gitlab.iri.upc.edu/labrobotica")
+    SET(CPACK_PACKAGING_INSTALL_PREFIX /usr)
+    SET(CPACK_GENERATOR "DEB")
+    SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "labrobotica - labrobotica@iri.upc.edu")
 
-  INCLUDE(CPack)
-ELSE(UNIX)
-  ADD_CUSTOM_COMMAND(
-    COMMENT "packaging only implemented in unix"
-    TARGET  uninstall
-  )
-ENDIF(UNIX)
+  # Uncomment to add the necessary mantainer scripts
+  #   SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_SOURCE_DIR}/scripts/debian/preinst;${CMAKE_SOURCE_DIR}/scripts/debian/postinst;${CMAKE_SOURCE_DIR}/scripts/debian/prerm;${CMAKE_SOURCE_DIR}/scripts/debian/postrm")
 
+  # Uncomment to add dependencies comma separated
+  # SET(CPACK_DEBIAN_PACKAGE_DEPENDS "iri-<package_name>-dev (>= 1.0~${DISTRIB})")
+    SET(CPACK_DEBIAN_PACKAGE_DEPENDS "iri-iriutils-dev (>= 1.0~${DISTRIB}), iri-comm-dev (>= 1.0~${DISTRIB})")
+
+    INCLUDE(CPack)
+  ELSE(UNIX)
+    ADD_CUSTOM_COMMAND(
+      COMMENT "packaging only implemented in unix"
+      TARGET  uninstall
+    )
+  ENDIF(UNIX)
