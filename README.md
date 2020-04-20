@@ -27,9 +27,7 @@ This driver is in charge to operate motion of a SegwayRMP200 and as well as moni
 
 * Add the labrobotica repository if it is not already added:
 
-``` sudo sh -c 'echo "deb [arch=amd64] http://labrepo.iri.upc.edu/packages xenial main" > /etc/apt/sources.list.d/labrobotica_repo.list' ```
-
-``` wget -O - http://labrepo.iri.upc.edu/labrobotica_repo.gpg.key | sudo apt-key add - ```
+Run the commands on _add repository_ and _add key_ from [labrobotica_how_to installation](https://gitlab.iri.upc.edu/labrobotica/labrobotica_how_to/-/blob/master/README.md#installation)
 
 * Install the package:
 
