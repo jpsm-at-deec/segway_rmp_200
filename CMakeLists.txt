@@ -62,6 +62,8 @@ IF (UNIX)
   ADD_CUSTOM_COMMAND(
     COMMENT "uninstall package"
     COMMAND xargs ARGS rm < install_manifest.txt
+    COMMAND rm -rd ${CMAKE_INSTALL_PREFIX}/lib/iri/${PROJECT_NAME}
+    COMMAND rm -rd ${CMAKE_INSTALL_PREFIX}/include/iri/${PROJECT_NAME}
 
     TARGET  uninstall
   )
