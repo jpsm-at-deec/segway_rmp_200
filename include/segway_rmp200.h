@@ -184,19 +184,19 @@ struct TSegwayRMP200Status
 class CSegwayRMP200
 {
   public:
-    static const float COUNTSDEG_2_RAD           = M_PI/(7.8f*180.f);
-    static const float COUNTSDEG_2_RADSEC        = M_PI/(7.8f*180.f);
-    static const float COUNTS_2_METSEC           = 1.f/332.f;
-    static const float FRAMES_2_SEC              = 0.01f;
-    static const float COUNTSMETR_2_METR         = 1.f/33215.f;
-    static const float COUNTSREV_2_RADS          = 2.f*M_PI/112644.f;
-    static const float COUNTSNEWTMETR_2_NEWTMETR = 1.f/1094.f;
-    static const float COUNTS_2_VOLT             = 0.0125f;
-    static const float COUNTS_2_VOLT_OFFSET      = 1.4f;
-    static const float COUNTSVOLT_2_VOLT         = 1.f/4.f;
-    static const float COUNTSMPH_2_METRSEC       = 3.6f*147.f/1.609344f;
-    static const float COUNTS_2_RADSEC           = 1024.f/M_PI;
-    static const float RADS_2_DEGS               = 180.f/M_PI;
+    static constexpr float COUNTSDEG_2_RAD           = M_PI/(7.8f*180.f);
+    static constexpr float COUNTSDEG_2_RADSEC        = M_PI/(7.8f*180.f);
+    static constexpr float COUNTS_2_METSEC           = 1.f/332.f;
+    static constexpr float FRAMES_2_SEC              = 0.01f;
+    static constexpr float COUNTSMETR_2_METR         = 1.f/33215.f;
+    static constexpr float COUNTSREV_2_RADS          = 2.f*M_PI/112644.f;
+    static constexpr float COUNTSNEWTMETR_2_NEWTMETR = 1.f/1094.f;
+    static constexpr float COUNTS_2_VOLT             = 0.0125f;
+    static constexpr float COUNTS_2_VOLT_OFFSET      = 1.4f;
+    static constexpr float COUNTSVOLT_2_VOLT         = 1.f/4.f;
+    static constexpr float COUNTSMPH_2_METRSEC       = 3.6f*147.f/1.609344f;
+    static constexpr float COUNTS_2_RADSEC           = 1024.f/M_PI;
+    static constexpr float RADS_2_DEGS               = 180.f/M_PI;
     
     /**
      * \brief segway PID
