@@ -1,4 +1,4 @@
-image: docker.io/labrobotica/labrobotica
+image: docker.io/labrobotica/labrobotica:latest
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -11,7 +11,9 @@ stages:
 build-package:
   stage: build
   script:
-    - apt update
+    - apt update || apt -y install ca-certificates && apt update
+#  Uncomment to install dependencies
+#    - apt -y install iri-<package_name>-dev
     - apt -y install iri-iriutils-dev iri-comm-dev
     - mkdir -pv build
     - cd build
@@ -31,7 +33,7 @@ update_repo:
   script:
     - cd build
     - "scp -i /root/.ssh/iriLabKeyNopwd -r *segway-rmp-200*.deb irilabo@labrepo.iri.upc.edu:packages/"
-    - "ssh irilabo@labrepo.iri.upc.edu -i /root/.ssh/iriLabKeyNopwd -tt /home/irilabo/repo_scripts/update_repo.sh segway-rmp-200"
+    - "ssh irilabo@labrepo.iri.upc.edu -i /root/.ssh/iriLabKeyNopwd -tt /home/irilabo/repo_scripts/update_repo.sh segway-rmp-200 $(lsb_release -cs)"
   only:
     - tags
     

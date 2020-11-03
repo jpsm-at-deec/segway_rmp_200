@@ -83,7 +83,7 @@ IF (UNIX)
     SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "labrobotica - labrobotica@iri.upc.edu")
 
   # Uncomment to add the necessary mantainer scripts
-  #   SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_SOURCE_DIR}/scripts/debian/preinst;${CMAKE_SOURCE_DIR}/scripts/debian/postinst;${CMAKE_SOURCE_DIR}/scripts/debian/prerm;${CMAKE_SOURCE_DIR}/scripts/debian/postrm")
+  SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_SOURCE_DIR}/scripts/debian/postinst;${CMAKE_SOURCE_DIR}/scripts/debian/prerm")
 
   # Uncomment to add dependencies comma separated
   # SET(CPACK_DEBIAN_PACKAGE_DEPENDS "iri-<package_name>-dev (>= 1.0~${DISTRIB})")

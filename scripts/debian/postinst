@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+
+case "$1" in
+  configure)
+    echo "   Trying to add library to ldconfig..."
+    /usr/share/iri/add_lib_to_ld_config.sh -l segway_rmp_200 -p && echo "   Done." || echo "   /usr/share/iri/add_lib_to_ld_config.sh doesn't exists. Download it from iriutils and execute it."
+    
+  ;;
+  abort-upgrade)
+
+  ;;
+  abort-remove)
+
+  ;;
+  abort-deconfigure)
+
+  ;;
+esac   
+
+exit 0
